@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+		<title>印象的真相</title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			html,body{
+				overflow: hidden;
+				height: 100%;
+			}
+			#wrap{
+				height: 100%;
+			}
+			#wrap > div{
+				height: 100%;
+				background: url(img/2.jpg) no-repeat;
+				background-size:100% 100% ;
+			}
+			canvas {
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			#btnOpen,#btnClose {
+				width: 26px;
+				height: 24px;
+				position: absolute;
+				right: 14px;
+				top: 20px;
+			}
+			.none {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div></div>
+			<video src="video/1video.mp4" width="0" height="0" muted></video>
+			<canvas></canvas>
+			<img class="none" id="btnOpen" src="./img/iconClose.png" alt="">
+			<img class="none" id="btnClose" src="./img/iconClose.png" alt="">
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload=function(){
+			var canvas = document.querySelector("canvas");
+			var video = document.querySelector("video");
+			var btnOpen = document.getElementById("btnOpen");
+			var btnClose = document.getElementById("btnClose");
+			canvas.width = document.documentElement.clientWidth;
+			canvas.height = document.documentElement.clientHeight;
+			var play = false;
+
+			if(canvas.getContext){
+				var ctx =canvas.getContext("2d");
+				var img = new Image();
+				img.src= "img/1.jpg";
+				img.onload=function(){
+					draw();
+				}
+			}
+			function draw(){
+				ctx.drawImage(img,0,0,canvas.width,canvas.height);
+				
+				canvas.addEventListener("touchstart",function(ev){
+					ev = ev||event;
+					var touchC = ev.changedTouches[0];
+					var x = touchC.clientX ;
+					var y = touchC.clientY ;
+					
+					ctx.save();
+					ctx.beginPath();
+					ctx.globalCompositeOperation="destination-out";
+					ctx.arc(x,y,20,0,2*Math.PI);
+					ctx.fill();
+					ctx.restore();
+				})
+
+				canvas.addEventListener("touchmove",function(ev){
+					ev = ev||event;
+					var touchC = ev.changedTouches[0];
+					var x = touchC.clientX;
+					var y = touchC.clientY;
+
+					if(x > 1290 && y > 950) {
+						play = true;
+					}
+					if(play) {
+						playVideo();
+					}
+
+					ctx.save();
+					ctx.beginPath();
+					ctx.globalCompositeOperation="destination-out";
+					ctx.arc(x,y,20,0,2*Math.PI);
+					ctx.fill();
+					ctx.restore();
+				})
+			};
+			var time = null;
+			function playVideo() {
+				video.play();
+				btnOpen.setAttribute("class","");
+				time = setInterval(function() {
+					ctx.drawImage(video,0,0,canvas.width,canvas.height);
+				},100)
+			};
+			video.onended = function() {
+				console.log("视频播放完毕");
+				clearInterval(time);
+			}
+			btnOpen.onclick = function() {
+				console.log("关闭静音");
+				video.muted = false;
+				btnOpen.setAttribute("class","none");
+				btnClose.setAttribute("class","");
+			}
+			btnClose.onclick = function() {
+				console.log("静音");
+				video.muted = true;
+				btnOpen.setAttribute("class","");
+				btnClose.setAttribute("class","none");
+			}
+		}
+	</script>
+</html>
